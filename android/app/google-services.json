@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "12563084290",
+    "project_id": "finance-ai-dev-dd3fe",
+    "storage_bucket": "finance-ai-dev-dd3fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12563084290:android:df468c3c3b6e47889fe31b",
+        "android_client_info": {
+          "package_name": "com.trl.mini_finan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXfeCn6UWP86GPs-EBRmNjLIsT_luqOZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
