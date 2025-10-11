@@ -1,0 +1,10 @@
+{
+  "name": "ai-proxy",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vercel/node": "^5.3.26",
+    "firebase-admin": "^12.6.0",
+    "openai": "^4.60.0"
+  }
+}

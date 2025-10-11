@@ -105,4 +105,8 @@ class TransactionRepository {
   Future<void> delete(String id) async {
     await _col().doc(id).delete();
   }
+
+  // sugar for undo (just calls upsert)
+  Future<void> restore(TxModel tx) =>
+      upsert(tx.copyWith(updatedAt: DateTime.now()));
 }

@@ -6,6 +6,7 @@ import 'package:mini_finan/features/dashboard/providers.dart';
 import 'package:mini_finan/features/dashboard/providers/trend_expand_persistence_provider.dart';
 import 'package:mini_finan/features/dashboard/widgets/expansion_card.dart';
 import 'package:mini_finan/features/dashboard/widgets/monthly_trend_chart.dart';
+import 'package:mini_finan/features/insights/insights_card.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';
 import 'package:mini_finan/features/transactions/presentation/transaction_detail_sheet.dart';
 import 'package:mini_finan/widgets/error_card.dart';
@@ -16,11 +17,6 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final totals = ref.watch(totalsProvider);
-    final topCats = ref.watch(topCategoriesProvider(5));
-    final recent = ref.watch(recentTxProvider(4));
-    final catNameL = ref.watch(categoryNameLookupProvider);
-    final catColorL = ref.watch(categoryColorLookupProvider);
-    final totalSpend = ref.watch(totalSpendThisMonthProvider);
 
     final auth = ref.read(authControllerProvider);
 
@@ -180,6 +176,8 @@ class DashboardScreen extends ConsumerWidget {
                 );
               },
             ),
+            const SizedBox(height: 16),
+            const InsightsCard(),
             const SizedBox(height: 16),
             Consumer(
               builder: (context, ref, _) {
