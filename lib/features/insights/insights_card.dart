@@ -1,54 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mini_finan/features/insights/insights_provider.dart';
+import 'package:mini_finan/features/insights/insights_resolved_provider.dart';
+import 'package:mini_finan/features/insights/insights_settings.dart';
 
 class InsightsCard extends ConsumerWidget {
   const InsightsCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final insightsAsync = ref.watch(insightsProvider);
+    final useAi = ref.watch(insightsUseAiProvider);
+    final insightsAv = ref.watch(monthlyInsightsResolvedProvider);
+    debugPrint('[InsightsCard] useAi=$useAi');
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: insightsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Text('Error loading insights: $e'),
-          data: (insights) {
-            if (insights.isEmpty) {
-              return const Text('💡 No insights yet — add more transactions!');
-            }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          children: [
+            Row(
               children: [
-                const Text(
-                  '💡 Insights',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...insights.map(
-                  (s) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(
-                      s,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
+                Text('💡 Insights',
+                    style: Theme.of(context).textTheme.titleMedium),
+                const Spacer(),
+                Text('AI', style: Theme.of(context).textTheme.labelMedium),
+                const SizedBox(width: 8),
+                Switch(
+                  value: useAi,
+                  onChanged: (v) =>
+                      ref.read(insightsUseAiProvider.notifier).state = v,
                 ),
               ],
-            );
-          },
+            ),
+            const SizedBox(height: 8),
+            insightsAv.when(
+              loading: () => const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              ),
+              error: (e, _) => Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Error loading insights: $e',
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error)),
+              ),
+              data: (lines) {
+                if (lines.isEmpty) {
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'We’ll show insights once you add more transactions.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  );
+                }
+                return Column(
+                  children: [
+                    for (final line in lines)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('• '),
+                          Expanded(child: Text(line)),
+                        ],
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

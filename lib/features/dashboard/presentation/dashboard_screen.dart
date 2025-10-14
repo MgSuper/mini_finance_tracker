@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,6 +39,15 @@ class DashboardScreen extends ConsumerWidget {
         elevation: 0,
         title: const Text('Dashboard'),
         actions: [
+          IconButton(
+            tooltip: 'Token',
+            icon: const Icon(Icons.token),
+            onPressed: () async {
+              final user = FirebaseAuth.instance.currentUser;
+              final idToken = await user?.getIdToken(true);
+              print(idToken);
+            },
+          ),
           IconButton(
             tooltip: 'Logout',
             icon: const Icon(Icons.logout),
