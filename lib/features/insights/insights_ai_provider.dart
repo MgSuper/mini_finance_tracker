@@ -1,113 +1,94 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:mini_finan/features/insights/insights_metrics.dart';
 
+import 'package:mini_finan/features/insights/insights_metrics.dart';
+import 'package:mini_finan/features/insights/settings_providers.dart';
 import 'package:mini_finan/services/firebase_providers.dart';
 
-/// Provided via --dart-define=AI_PROXY_URL=https://<your-vercel-app>.vercel.app/api/insights
-const String kAiProxyUrl = String.fromEnvironment('AI_PROXY_URL',
-    defaultValue:
-        'https://mini-finance-tracker-o6j71dmqk-supers-projects-f0402237.vercel.app/api/ai-insights');
+final insightsAiProvider = FutureProvider<String?>((ref) async {
+  // Check if AI mode is enabled
+  final useAi = ref.watch(useAiInsightsProvider);
+  print('useAi: $useAi');
+  if (!useAi) return null;
 
-/// Builds a compact "metrics" object your Vercel function expects
-Map<String, dynamic> _buildMetricsJson(InsightsMetrics m) {
-  // totals
-  final totalIncome =
-      m.incomeByCategory.values.fold<double>(0, (a, b) => a + b);
-  final totalSpend =
-      m.expenseByCategory.values.fold<double>(0, (a, b) => a + b);
-  final net = totalIncome - totalSpend;
-
-  // arrays with resolved category names
-  final expenseByCategory = m.expenseByCategory.entries
-      .map((e) => {
-            'categoryId': e.key,
-            'categoryName': m.catNameOf(e.key),
-            'amount': e.value, // positive
-          })
-      .toList();
-
-  final incomeByCategory = m.incomeByCategory.entries
-      .map((e) => {
-            'categoryId': e.key,
-            'categoryName': m.catNameOf(e.key),
-            'amount': e.value, // positive
-          })
-      .toList();
-
-  final merchantSpend = m.merchantSpend.entries
-      .map((e) => {
-            'merchant': e.key,
-            'amount': e.value, // positive
-          })
-      .toList();
-
-  return {
-    'summary': {
-      'totalIncome': totalIncome,
-      'totalSpend': totalSpend,
-      'net': net,
-    },
-    'expenseByCategory': expenseByCategory,
-    'incomeByCategory': incomeByCategory,
-    'merchantSpend': merchantSpend,
-  };
-}
-
-/// Calls your Vercel proxy with {metrics, model} and Firebase ID token.
-/// Returns a list of 1–3 bullet strings parsed from { text }.
-final monthlyInsightsAiProvider = FutureProvider<List<String>>((ref) async {
-  if (kAiProxyUrl.isEmpty) return const <String>[];
-
-  // Metrics
-  final metrics = ref.read(insightsMetricsProvider);
-  final metricsJson = _buildMetricsJson(metrics);
-
-  // Optional model switch (hard-coded here; expose a setting later if you like)
-  const model = 'gpt-4o-mini';
-
-  // Firebase ID token for Authorization: Bearer <token>
-  final auth = ref.read(firebaseAuthProvider);
-  final token = await auth.currentUser?.getIdToken(true);
-  print('token >>>>>>> $token');
-  if (token == null) {
-    // Not signed in -> your proxy will 401; return empty to keep UI calm
-    return const <String>[];
+  // Watch reactive metrics
+  final metricsAsync = ref.watch(insightsMetricsProvider);
+  final metrics = metricsAsync.valueOrNull;
+  if (metrics == null || metrics.isEmpty) {
+    return null; // still loading
   }
 
-  final res = await http.post(
-    Uri.parse(kAiProxyUrl),
+  // Prefer proxy (recommended)
+  final proxy = aiProxyUrl.trim();
+  print('proxy: $proxy');
+
+  if (proxy.isNotEmpty) {
+    final auth = ref.read(firebaseAuthProvider);
+    final idToken = await auth.currentUser?.getIdToken(true);
+    print('idToken: $idToken');
+
+    final resp = await http.post(
+      Uri.parse(proxy),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $idToken',
+      },
+      body: jsonEncode({
+        'metrics': metrics,
+        'model': 'gpt-4o-mini',
+      }),
+    );
+    debugPrint('[AI] proxy status=${resp.statusCode} body=${resp.body}');
+
+    if (resp.statusCode >= 200 && resp.statusCode < 300) {
+      final data = jsonDecode(resp.body) as Map<String, dynamic>;
+      final text = (data['text'] as String?)?.trim();
+      if (text == null || text.isEmpty) return null;
+      return text;
+    }
+    // Proxy failed
+    return null;
+  }
+
+  // No proxy → fallback to direct OpenAI
+  final apiKey = openAiApiKey;
+  print('apiKey: $apiKey');
+  if (apiKey.isEmpty) return null;
+
+  final prompt = '''
+You are a budgeting assistant. Summarize the user's monthly finances in 2–3 short, plain sentences.
+Prefer concrete numbers and comparisons month-over-month. Avoid promises or advice.
+JSON:
+${jsonEncode(metrics)}
+''';
+  final uri = Uri.parse('https://api.openai.com/v1/chat/completions');
+
+  final resp = await http.post(
+    uri,
     headers: {
+      'Authorization': 'Bearer $apiKey',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
     },
-    body: jsonEncode({'metrics': metricsJson, 'model': model}),
+    body: jsonEncode({
+      'model': 'gpt-4o-mini',
+      'temperature': 0.3,
+      'messages': [
+        {
+          'role': 'system',
+          'content': 'You are a concise financial summarizer.'
+        },
+        {'role': 'user', 'content': prompt},
+      ],
+    }),
   );
 
-  if (res.statusCode == 401) {
-    // Unauthorized from proxy – show nothing but don’t crash UI
-    return const <String>[];
+  if (resp.statusCode >= 200 && resp.statusCode < 300) {
+    final data = jsonDecode(resp.body) as Map<String, dynamic>;
+    final text =
+        (data['choices'] as List).first['message']['content'] as String;
+    return text.trim();
   }
-  if (res.statusCode ~/ 100 != 2) {
-    throw StateError('AI proxy error ${res.statusCode}: ${res.body}');
-  }
-
-  final decoded = jsonDecode(res.body);
-  // Your endpoint returns { uid, text }
-  final text = (decoded is Map && decoded['text'] is String)
-      ? decoded['text'] as String
-      : '';
-
-  if (text.isEmpty) return const <String>[];
-
-  // Split nicely into bullet-ish lines (keep it simple)
-  final lines = text
-      .split(RegExp(r'[\n•\-]+'))
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .toList();
-
-  // Cap to 3 succinct lines for UI
-  return lines.take(3).toList();
+  return null;
 });

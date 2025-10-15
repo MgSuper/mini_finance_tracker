@@ -1,9 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Read API key from --dart-define or env-like value.
-/// Pass when running: --dart-define=OPENAI_API_KEY=sk-xxxx
+/// Read from --dart-define (empty if not supplied)
 const openAiApiKey = String.fromEnvironment('OPENAI_API_KEY', defaultValue: '');
+
+/// Prefer using a proxy so the app never holds the key.
+/// e.g. --dart-define=AI_PROXY_URL=https://<your>.vercel.app/api/insights
+const aiProxyUrl = String.fromEnvironment('AI_PROXY_URL', defaultValue: '');
 
 final useAiInsightsProvider =
     StateNotifierProvider<UseAiInsightsController, bool>((ref) {
