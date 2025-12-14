@@ -37,11 +37,6 @@ class MoreScreen extends StatelessWidget {
             title: const Text('Transactions'),
             onTap: () => context.push('/transactions'),
           ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
-            onTap: () => context.push('/dashboard'),
-          ),
         ],
       ),
     );

@@ -2,15 +2,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mini_finan/app/providers/theme_mode_provider.dart';
 import 'package:mini_finan/features/auth/providers.dart';
 import 'package:mini_finan/features/dashboard/providers.dart';
 import 'package:mini_finan/features/dashboard/providers/trend_expand_persistence_provider.dart';
 import 'package:mini_finan/features/dashboard/widgets/expansion_card.dart';
+import 'package:mini_finan/features/dashboard/widgets/expansion_card_shimmer.dart';
 import 'package:mini_finan/features/dashboard/widgets/monthly_trend_chart.dart';
 import 'package:mini_finan/features/insights/insights_card.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';
 import 'package:mini_finan/features/transactions/presentation/transaction_detail_sheet.dart';
 import 'package:mini_finan/widgets/error_card.dart';
+import 'package:mini_finan/widgets/shimmer_box.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -40,13 +43,9 @@ class DashboardScreen extends ConsumerWidget {
         title: const Text('Dashboard'),
         actions: [
           IconButton(
-            tooltip: 'Token',
-            icon: const Icon(Icons.token),
-            onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
-              final idToken = await user?.getIdToken(true);
-              print(idToken);
-            },
+            tooltip: 'Toggle theme',
+            icon: const Icon(Icons.brightness_6),
+            onPressed: () => ref.read(themeModeProvider.notifier).toggle(),
           ),
           IconButton(
             tooltip: 'Logout',
@@ -64,31 +63,24 @@ class DashboardScreen extends ConsumerWidget {
               _ => null,
             },
             itemBuilder: (ctx) => const [
-              PopupMenuItem(value: 'import', child: Text('Import CSV')),
               PopupMenuItem(
-                  value: 'categories', child: Text('Manage Categories')),
-              PopupMenuItem(value: 'rules', child: Text('Manage Rules')),
-              PopupMenuItem(value: 'more', child: Text('More…')),
+                value: 'import',
+                child: Text('Import CSV'),
+              ),
+              PopupMenuItem(
+                value: 'categories',
+                child: Text('Manage Categories'),
+              ),
+              PopupMenuItem(
+                value: 'rules',
+                child: Text('Manage Rules'),
+              ),
+              PopupMenuItem(
+                value: 'more',
+                child: Text('More…'),
+              ),
             ],
           ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.small(
-            heroTag: 'more',
-            onPressed: () => context.push('/more'),
-            child: const Icon(Icons.more_horiz),
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton(
-            onPressed: () => context.push('/transactions/add'),
-            child: const Icon(Icons.add),
-            // label: const Text('Add transaction'),
-          ),
-          const SizedBox(height: 12),
         ],
       ),
       body: RefreshIndicator(
@@ -102,6 +94,7 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             _TotalsCard(totals: totals),
             // Expandable Monthly Trend
+            const SizedBox(height: 16),
             Consumer(
               builder: (context, ref, _) {
                 final expandedState = ref.watch(monthlyTrendExpandedProvider);
@@ -116,13 +109,7 @@ class DashboardScreen extends ConsumerWidget {
                     child:
                         const SizedBox(height: 220, child: MonthlyTrendChart()),
                   ),
-                  orElse: () => const Card(
-                    child: SizedBox(
-                      height: 80,
-                      child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                    ),
-                  ),
+                  orElse: () => const ExpansionCardShimmer(),
                 );
               },
             ),
@@ -176,13 +163,7 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  orElse: () => const Card(
-                    child: SizedBox(
-                      height: 80,
-                      child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                    ),
-                  ),
+                  orElse: () => const ExpansionCardShimmer(),
                 );
               },
             ),
@@ -240,18 +221,17 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  orElse: () => const Card(
-                    child: SizedBox(
-                      height: 80,
-                      child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                    ),
-                  ),
+                  orElse: () => const ExpansionCardShimmer(),
                 );
               },
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/transactions/add'),
+        child: const Icon(Icons.add),
+        // label: const Text('Add transaction'),
       ),
     );
   }
@@ -264,7 +244,61 @@ class _TotalsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return totals.when(
-      loading: () => const _CardSkeleton(height: 96),
+      loading: () => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: LayoutBuilder(
+            builder: (ctx, c) {
+              final small = c.maxWidth < 360;
+
+              if (small) {
+                // === Small layout: same structure as data ===
+                return const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _TotalChipSkeleton(isNegative: false),
+                        _TotalChipSkeleton(isNegative: true),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Row(
+                      children: [
+                        // "Net" label placeholder
+                        ShimmerBox(width: 28, height: 14, borderRadius: 6),
+                        Spacer(),
+                        // "Net" value placeholder (FittedBox target size)
+                        ShimmerBox(width: 120, height: 26, borderRadius: 6),
+                      ],
+                    ),
+                  ],
+                );
+              }
+
+              // === Wide layout: same structure as data ===
+              return const Row(
+                children: [
+                  _TotalChipSkeleton(isNegative: false),
+                  SizedBox(width: 12),
+                  _TotalChipSkeleton(isNegative: true),
+                  Spacer(),
+                  // Net column (label + value)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ShimmerBox(width: 24, height: 12, borderRadius: 6),
+                      SizedBox(height: 6),
+                      ShimmerBox(width: 140, height: 28, borderRadius: 6),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
       error: (e, _) => ErrorCard(
         error: e,
         onRetry: () => ref.invalidate(transactionsStreamProvider),
@@ -337,6 +371,37 @@ class _TotalsCard extends ConsumerWidget {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _TotalChipSkeleton extends StatelessWidget {
+  const _TotalChipSkeleton({this.isNegative = false});
+  final bool isNegative;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isNegative
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
+
+    // Mirror _TotalChip: same padding + border radius + background tint
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withAlpha(20),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // label (Text(label, style: labelSmall))
+          ShimmerBox(width: 46, height: 12, borderRadius: 6),
+          SizedBox(height: 6),
+          // value (Text(_money(...), style: titleMedium))
+          ShimmerBox(width: 96, height: 20, borderRadius: 6),
+        ],
       ),
     );
   }

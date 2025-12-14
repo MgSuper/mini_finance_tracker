@@ -30,7 +30,6 @@ class InsightsCard extends ConsumerWidget {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -48,6 +47,7 @@ class InsightsCard extends ConsumerWidget {
                 Row(
                   children: [
                     const Text('AI'),
+                    const SizedBox(width: 8),
                     Switch(
                       value: useAi,
                       onChanged: (_) =>
