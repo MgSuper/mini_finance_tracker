@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:mini_finan/features/categories/data/category_model.dart';
 import 'package:mini_finan/features/categories/data/rule_model.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';

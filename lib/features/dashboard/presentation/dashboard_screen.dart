@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mini_finan/app/providers/theme_mode_provider.dart';
 import 'package:mini_finan/features/auth/providers.dart';
 import 'package:mini_finan/features/dashboard/providers.dart';
 import 'package:mini_finan/features/dashboard/providers/trend_expand_persistence_provider.dart';
@@ -21,8 +19,6 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final totals = ref.watch(totalsProvider);
-
-    final auth = ref.read(authControllerProvider);
 
     final uid = ref.watch(authUidNullableProvider);
     if (uid == null) {
@@ -500,56 +496,6 @@ class _TxTile extends ConsumerWidget {
         isScrollControlled: true,
         useSafeArea: true,
         builder: (_) => TransactionDetailSheet(txId: t.id),
-      ),
-    );
-  }
-}
-
-class _CardSkeleton extends StatelessWidget {
-  const _CardSkeleton({required this.height});
-  final double height;
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: SizedBox(
-          height: height,
-          child: const Center(child: CircularProgressIndicator())),
-    );
-  }
-}
-
-class _ErrorTile extends StatelessWidget {
-  const _ErrorTile(this.msg);
-  final String msg;
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text('Error: $msg'),
-      ),
-    );
-  }
-}
-
-class _EmptyTile extends StatelessWidget {
-  const _EmptyTile(this.msg);
-  final String msg;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(
-            msg,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ),
       ),
     );
   }

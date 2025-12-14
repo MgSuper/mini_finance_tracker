@@ -49,12 +49,12 @@ class _ShimmerBoxState extends State<ShimmerBox>
     final scheme = Theme.of(context).colorScheme;
     final base = widget.baseColor ??
         (Theme.of(context).brightness == Brightness.dark
-            ? scheme.surfaceContainerHighest.withOpacity(0.28)
-            : scheme.surfaceContainerHighest.withOpacity(0.52));
+            ? scheme.surfaceContainerHighest.withAlpha(28)
+            : scheme.surfaceContainerHighest.withAlpha(52));
     final hi = widget.highlightColor ??
         (Theme.of(context).brightness == Brightness.dark
-            ? scheme.surfaceTint.withOpacity(0.35)
-            : scheme.primary.withOpacity(0.18));
+            ? scheme.surfaceTint.withAlpha(35)
+            : scheme.primary.withAlpha(18));
 
     return AnimatedBuilder(
       animation: _ctrl,

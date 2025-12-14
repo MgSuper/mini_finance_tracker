@@ -178,7 +178,7 @@ String _yyyyMmDd(DateTime d) =>
 
 String _money(double v) {
   final s = v.abs().toStringAsFixed(2);
-  return v < 0 ? '-\$${s}' : '+\$ $s';
+  return v < 0 ? '-\$$s' : '+\$ $s';
 }
 
 Color? _parseHex(String? hex) {

@@ -61,7 +61,9 @@ class _CategoryDialogState extends ConsumerState<CategoryDialog> {
                 Expanded(
                   child: RadioListTile<CategoryType>(
                     value: CategoryType.expense,
+                    // ignore: deprecated_member_use
                     groupValue: _type,
+                    // ignore: deprecated_member_use
                     onChanged: (t) => setState(() => _type = t!),
                     title: const Text('Expense'),
                   ),
@@ -69,7 +71,9 @@ class _CategoryDialogState extends ConsumerState<CategoryDialog> {
                 Expanded(
                   child: RadioListTile<CategoryType>(
                     value: CategoryType.income,
+                    // ignore: deprecated_member_use
                     groupValue: _type,
+                    // ignore: deprecated_member_use
                     onChanged: (t) => setState(() => _type = t!),
                     title: const Text('Income'),
                   ),

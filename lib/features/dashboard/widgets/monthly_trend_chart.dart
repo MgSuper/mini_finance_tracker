@@ -160,8 +160,8 @@ class MonthlyTrendChart extends ConsumerWidget {
                             show: true,
                             gradient: LinearGradient(
                               colors: [
-                                primary.withOpacity(0.20),
-                                primary.withOpacity(0.05),
+                                primary.withAlpha(20),
+                                primary.withAlpha(5),
                               ],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
@@ -225,7 +225,7 @@ class _CardWrap extends StatelessWidget {
 
 String _moneyFull(double v) {
   final s = v.abs().toStringAsFixed(2);
-  return v < 0 ? '-\$${s}' : '+\$ $s';
+  return v < 0 ? '-\$$s' : '+\$ $s';
 }
 
 String _moneyCompact(double v) {
@@ -249,7 +249,7 @@ String _moneyCompact(double v) {
           ? 1
           : 2);
   s += unit;
-  return v < 0 ? '-\$${s}' : '\$${s}';
+  return v < 0 ? '-\$$s' : '\$$s';
 }
 
 double _niceStep(double approx) {
@@ -268,11 +268,6 @@ double _niceStep(double approx) {
     niceFraction = 10;
   }
   return niceFraction * math.pow(10, exponent);
-}
-
-extension on num {
-  double log() => (this as double).log();
-  double pow(int p) => MathHelper.pow(toDouble(), p);
 }
 
 /// Minimal helper to avoid importing dart:math directly into the file.

@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 const openAiApiKey = String.fromEnvironment('OPENAI_API_KEY', defaultValue: '');
 
 /// Prefer using a proxy so the app never holds the key.
-/// e.g. --dart-define=AI_PROXY_URL=https://<your>.vercel.app/api/insights
 const aiProxyUrl = String.fromEnvironment('AI_PROXY_URL', defaultValue: '');
 
 final useAiInsightsProvider =

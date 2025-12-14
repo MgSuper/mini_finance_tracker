@@ -13,12 +13,12 @@ class CategoriesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cats = ref.watch(categoriesProvider);
 
-    Future<void> _addDialog() async {
+    Future<void> addDialog() async {
       final form = GlobalKey<FormState>();
       final nameCtrl = TextEditingController();
       final codeCtrl = TextEditingController();
       final colorCtrl = TextEditingController(text: '#FF9800');
-      CategoryType _type = CategoryType.expense; // default
+      CategoryType type = CategoryType.expense; // default
 
       String slugify(String s) => s
           .toLowerCase()
@@ -75,7 +75,7 @@ class CategoriesScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<CategoryType>(
-                    value: _type,
+                    initialValue: type,
                     decoration: const InputDecoration(labelText: 'Type'),
                     items: const [
                       DropdownMenuItem(
@@ -84,7 +84,7 @@ class CategoriesScreen extends ConsumerWidget {
                           value: CategoryType.expense, child: Text('Expense')),
                     ],
                     onChanged: (v) {
-                      if (v != null) _type = v;
+                      if (v != null) type = v;
                     },
                   ),
                 ],
@@ -112,7 +112,7 @@ class CategoriesScreen extends ConsumerWidget {
                     name: nameCtrl.text.trim(),
                     code: codeCtrl.text.trim(),
                     color: hex,
-                    type: _type,
+                    type: type,
                   );
                   await repo.addCategory(
                     name: cat.name,
@@ -145,7 +145,7 @@ class CategoriesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Categories')),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addDialog,
+        onPressed: addDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add'),
       ),
@@ -157,7 +157,7 @@ class CategoriesScreen extends ConsumerWidget {
             return const Center(child: Text('No categories yet'));
           }
 
-          Future<bool?> _confirmDelete(BuildContext context, String name) {
+          Future<bool?> confirmDelete(BuildContext context, String name) {
             return showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
@@ -176,12 +176,12 @@ class CategoriesScreen extends ConsumerWidget {
             );
           }
 
-          Future<void> _editDialog(CategoryModel c) async {
+          Future<void> editDialog(CategoryModel c) async {
             final form = GlobalKey<FormState>();
             final nameCtrl = TextEditingController(text: c.name);
             final codeCtrl = TextEditingController(text: c.code);
             final colorCtrl = TextEditingController(text: c.color);
-            var _type = c.type;
+            var type = c.type;
 
             await showDialog(
               context: context,
@@ -222,7 +222,7 @@ class CategoriesScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<CategoryType>(
-                          value: _type,
+                          initialValue: type,
                           decoration: const InputDecoration(labelText: 'Type'),
                           items: const [
                             DropdownMenuItem(
@@ -233,7 +233,7 @@ class CategoriesScreen extends ConsumerWidget {
                                 child: Text('Expense')),
                           ],
                           onChanged: (v) {
-                            if (v != null) _type = v;
+                            if (v != null) type = v;
                           },
                         ),
                       ],
@@ -257,7 +257,7 @@ class CategoriesScreen extends ConsumerWidget {
                           name: nameCtrl.text.trim(),
                           code: codeCtrl.text.trim(),
                           color: hex,
-                          type: _type,
+                          type: type,
                         );
                         if (ctx.mounted) Navigator.pop(ctx);
                         if (context.mounted) {
@@ -291,13 +291,14 @@ class CategoriesScreen extends ConsumerWidget {
               return Dismissible(
                 key: ValueKey('cat_${c.id}'),
                 direction: DismissDirection.endToStart,
-                confirmDismiss: (_) => _confirmDelete(context, c.name),
+                confirmDismiss: (_) => confirmDelete(context, c.name),
                 onDismissed: (_) async {
                   try {
                     ref.read(authUidProvider);
                     await ref
                         .read(categoriesRepositoryProvider)
                         .deleteCategory(c.id);
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('🗑️ Deleted “${c.name}”')),
                     );
@@ -317,10 +318,10 @@ class CategoriesScreen extends ConsumerWidget {
                   leading: CircleAvatar(backgroundColor: color),
                   title: Text(c.name),
                   subtitle: Text('${c.code} • $typeLabel'),
-                  onTap: () => _editDialog(c),
+                  onTap: () => editDialog(c),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
-                    onPressed: () => _editDialog(c),
+                    onPressed: () => editDialog(c),
                   ),
                 ),
               );

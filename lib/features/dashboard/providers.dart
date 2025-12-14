@@ -1,6 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collection/collection.dart';
-
 import 'package:mini_finan/features/auth/providers.dart';
 import 'package:mini_finan/features/categories/categories_providers.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';

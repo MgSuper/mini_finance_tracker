@@ -35,7 +35,6 @@ final transactionsProvider =
       final repo = ref.watch(transactionRepositoryProvider);
       final (start, end) = range;
       if (start != null && end != null) {
-        print('Provider calling watchInRange: $start -> $end');
         return repo.watchInRange(start, end);
       } else {
         return repo.watchLatest(limit: 50);
@@ -54,7 +53,6 @@ class SeedTx {
 
   Future<void> addSample() async {
     final uid = _ref.read(authUidProvider);
-    print('uid >>>>>>> $uid');
     final repo = _ref.read(transactionRepositoryProvider);
     final id = const Uuid().v4();
     final now = DateTime.now();

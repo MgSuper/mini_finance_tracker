@@ -85,7 +85,7 @@ class AppTheme {
         ),
       ),
 
-      iconTheme: IconThemeData(color: colorScheme.onSurface.withOpacity(0.85)),
+      iconTheme: IconThemeData(color: colorScheme.onSurface.withAlpha(20)),
 
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

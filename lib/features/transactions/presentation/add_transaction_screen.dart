@@ -95,6 +95,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           (effectiveCategoryId == null || effectiveCategoryId.isEmpty)) {
         setState(() => _forceCategoryValidation = true);
         _formKey.currentState!.validate(); // will show "Pick a category"
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please pick a category')),
         );
@@ -189,7 +190,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: _currency,
+                initialValue: _currency,
                 decoration: const InputDecoration(labelText: 'Currency'),
                 items: const ['USD', 'EUR', 'VND', 'SGD', 'JPY']
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
@@ -202,7 +203,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               catsAsync.when(
                 data: (cats) {
                   return DropdownButtonFormField<String>(
-                    value: _categoryId,
+                    initialValue: _categoryId,
                     decoration: const InputDecoration(labelText: 'Category'),
                     items: [
                       for (final c in cats)

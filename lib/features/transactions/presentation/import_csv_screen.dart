@@ -1,7 +1,6 @@
 import 'dart:io' show File;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mini_finan/features/transactions/data/csv_import.dart';
 import 'package:mini_finan/features/transactions/import_controller.dart';
@@ -116,7 +115,8 @@ class _ImportCsvScreenState extends ConsumerState<ImportCsvScreen> {
                       final name = CsvFileActions.buildTemplateName();
                       await CsvFileActions.saveToDevice(
                           bytes: bytes, fileName: name);
-                      if (!mounted) return;
+                      if (!context.mounted) return;
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('✅ Template saved')),
                       );
@@ -162,7 +162,7 @@ class _ImportCsvScreenState extends ConsumerState<ImportCsvScreen> {
                   'Detected ${p.rows.length} rows • ${p.headers.length} columns'),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: currencyFallback,
+                initialValue: currencyFallback,
                 decoration:
                     const InputDecoration(labelText: 'Fallback currency'),
                 items: const ['USD', 'EUR', 'VND', 'SGD', 'JPY']
@@ -265,7 +265,7 @@ class _MapRow extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: DropdownButtonFormField<int>(
-            value: value >= 0 && value < headers.length ? value : null,
+            initialValue: value >= 0 && value < headers.length ? value : null,
             isExpanded: true,
             decoration: const InputDecoration(
                 border: OutlineInputBorder(), isDense: true),

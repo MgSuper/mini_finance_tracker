@@ -72,7 +72,6 @@ class _LocalFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('fallback :');
     return localAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Text('Error loading insights: $e'),

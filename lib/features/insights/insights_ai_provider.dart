@@ -10,7 +10,6 @@ import 'package:mini_finan/services/firebase_providers.dart';
 final insightsAiProvider = FutureProvider<String?>((ref) async {
   // Check if AI mode is enabled
   final useAi = ref.watch(useAiInsightsProvider);
-  print('useAi: $useAi');
   if (!useAi) return null;
 
   // Watch reactive metrics
@@ -22,12 +21,10 @@ final insightsAiProvider = FutureProvider<String?>((ref) async {
 
   // Prefer proxy (recommended)
   final proxy = aiProxyUrl.trim();
-  print('proxy: $proxy');
 
   if (proxy.isNotEmpty) {
     final auth = ref.read(firebaseAuthProvider);
     final idToken = await auth.currentUser?.getIdToken(true);
-    print('idToken: $idToken');
 
     final resp = await http.post(
       Uri.parse(proxy),
@@ -54,7 +51,6 @@ final insightsAiProvider = FutureProvider<String?>((ref) async {
 
   // No proxy → fallback to direct OpenAI
   final apiKey = openAiApiKey;
-  print('apiKey: $apiKey');
   if (apiKey.isEmpty) return null;
 
   final prompt = '''

@@ -35,6 +35,7 @@ class CsvFileActions {
     final f = File('${dir.path}/$fileName');
     await f.writeAsBytes(bytes, flush: true);
 
+    // ignore: deprecated_member_use
     await Share.shareXFiles(
       [XFile(f.path, mimeType: 'text/csv', name: fileName)],
       subject: 'Mini Finance CSV template',

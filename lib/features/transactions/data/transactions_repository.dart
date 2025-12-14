@@ -60,8 +60,6 @@ class TransactionRepository {
   Stream<List<TxModel>> watchInRange(DateTime start, DateTime endExclusive) {
     try {
       final c = _col();
-      print(' start $start');
-      print(' endExclusive $endExclusive');
 
       return c
           .where('date', isGreaterThanOrEqualTo: start)
@@ -69,8 +67,6 @@ class TransactionRepository {
           .orderBy('date', descending: true)
           .snapshots()
           .map((s) {
-        print(' length ${s.docs.length}');
-
         for (final d in s.docs) {
           // ignore: avoid_print
           print('tx date=${(d.data()['date'] as Timestamp?)?.toDate()}');

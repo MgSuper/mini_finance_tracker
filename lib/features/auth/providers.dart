@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../services/firebase_providers.dart';
+import 'package:mini_finan/services/firebase_providers.dart';
 
-/// Stream of FirebaseAuth changes as AsyncValue<User?>
+/// Stream of FirebaseAuth changes as AsyncValueUser?
 final authStateChangesProvider = StreamProvider<User?>(
   (ref) => ref.watch(firebaseAuthProvider).authStateChanges(),
 );

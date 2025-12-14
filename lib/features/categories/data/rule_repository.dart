@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'rule_model.dart';
+import 'package:mini_finan/features/categories/data/rule_model.dart';
 
 class RuleRepository {
   final CollectionReference<Map<String, dynamic>> col;

@@ -15,7 +15,7 @@ class RulesScreen extends ConsumerWidget {
 
     final catsMap = ref.watch(categoriesMapProvider);
 
-    Future<void> _addDialog() async {
+    Future<void> addDialog() async {
       final form = GlobalKey<FormState>();
       String field = 'merchant';
       final containsCtrl = TextEditingController();
@@ -40,7 +40,7 @@ class RulesScreen extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     DropdownButtonFormField<String>(
-                      value: field,
+                      initialValue: field,
                       decoration: const InputDecoration(labelText: 'Field'),
                       items: const [
                         DropdownMenuItem(
@@ -63,7 +63,7 @@ class RulesScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: categoryId,
+                      initialValue: categoryId,
                       decoration: const InputDecoration(labelText: 'Category'),
                       items: [
                         for (final c in cats)
@@ -120,7 +120,7 @@ class RulesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Rules')),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addDialog,
+        onPressed: addDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add'),
       ),
@@ -130,7 +130,7 @@ class RulesScreen extends ConsumerWidget {
         data: (items) {
           if (items.isEmpty) return const Center(child: Text('No rules yet'));
 
-          Future<bool?> _confirmDelete(BuildContext context) {
+          Future<bool?> confirmDelete(BuildContext context) {
             return showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
@@ -149,7 +149,7 @@ class RulesScreen extends ConsumerWidget {
             );
           }
 
-          Future<void> _editDialog(RuleModel r) async {
+          Future<void> editDialog(RuleModel r) async {
             final form = GlobalKey<FormState>();
             String field = r.field;
             final containsCtrl = TextEditingController(text: r.contains);
@@ -171,7 +171,7 @@ class RulesScreen extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         DropdownButtonFormField<String>(
-                          value: field,
+                          initialValue: field,
                           decoration: const InputDecoration(labelText: 'Field'),
                           items: const [
                             DropdownMenuItem(
@@ -193,7 +193,7 @@ class RulesScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
-                          value: categoryId,
+                          initialValue: categoryId,
                           decoration:
                               const InputDecoration(labelText: 'Category'),
                           items: [
@@ -261,11 +261,12 @@ class RulesScreen extends ConsumerWidget {
               return Dismissible(
                 key: ValueKey('rule_${r.id}'),
                 direction: DismissDirection.endToStart,
-                confirmDismiss: (_) => _confirmDelete(context),
+                confirmDismiss: (_) => confirmDelete(context),
                 onDismissed: (_) async {
                   try {
                     ref.read(authUidProvider);
                     await ref.read(ruleRepositoryProvider)?.delete(r.id);
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('🗑️ Rule deleted')));
                   } catch (e) {
@@ -298,10 +299,10 @@ class RulesScreen extends ConsumerWidget {
                       Text(catName),
                     ],
                   ),
-                  onTap: () => _editDialog(r),
+                  onTap: () => editDialog(r),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
-                    onPressed: () => _editDialog(r),
+                    onPressed: () => editDialog(r),
                   ),
                 ),
               );
