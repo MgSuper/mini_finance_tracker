@@ -52,7 +52,6 @@ class SeedTx {
   final Ref _ref;
 
   Future<void> addSample() async {
-    final uid = _ref.read(authUidProvider);
     final repo = _ref.read(transactionRepositoryProvider);
     final id = const Uuid().v4();
     final now = DateTime.now();

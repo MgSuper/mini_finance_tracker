@@ -115,9 +115,9 @@ class _ShimmerPainter extends CustomPainter {
         baseColor,
       ],
       stops: const [0.35, 0.5, 0.65],
-      begin: Alignment(-1, -1),
-      end: Alignment(1, 1),
-      transform: GradientRotation(math.pi / 6), // slight diagonal
+      begin: const Alignment(-1, -1),
+      end: const Alignment(1, 1),
+      transform: const GradientRotation(math.pi / 6), // slight diagonal
     ).createShader(Rect.fromCenter(
       center: Offset(centerX, height / 2),
       width: diag + band,
