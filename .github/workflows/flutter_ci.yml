@@ -1,0 +1,45 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  flutter:
+    name: Flutter Analyze & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # 3️⃣ Verify Flutter
+      - name: Flutter version
+        run: flutter --version
+
+      # 4️⃣ Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5️⃣ Static analysis
+      - name: Analyze project
+        run: flutter analyze
+
+      # 6️⃣ Run tests (won't fail if no tests yet)
+      - name: Run tests
+        run: flutter test
+        continue-on-error: true
+
+      # 7️⃣ Build Android APK (debug)
+      - name: Build debug APK
+        run: flutter build apk --debug

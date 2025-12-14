@@ -1,128 +1,158 @@
-# Mini Finan — Personal Finance Tracker (Flutter + Firebase)
+# Mini Finance Tracker
 
-A modern, real-time personal finance tracker built with **Flutter**, **Riverpod**, **GoRouter**, and **Firebase** (Auth + Firestore + Storage).  
-It supports CSV import, rule-based auto-tagging, category management, and a dashboard with charts and monthly summaries.
+A personal finance tracker built with Flutter + Firebase, featuring CSV import, rule-based categorization, real-time insights, and optional AI-generated summaries.
 
-> Demo goals: snappy UX, clean architecture, and production-ready patterns.
+Mini Finance Tracker is a cross-platform personal finance app designed to make expense tracking simple, flexible, and future-proof.
 
----
+Unlike typical expense apps, this project focuses on:
 
-## ✨ Features
+- CSV import from banks or spreadsheets
+- Transparent rule-based categorization
+- Clear monthly insights
+- Optional AI-generated summaries (privacy-safe via proxy)
 
-- **Auth**: Anonymous sign-in (ready to extend to Google/Apple).
-- **Transactions**: Add/Edit/Delete, CSV import, real-time streams.
-- **Categories**: CRUD with colors, codes, and `type: income | expense`.
-- **Rule Engine**: Auto-tag new transactions by matching merchant/description.
-- **Dashboard**: Monthly totals, top categories, recent transactions, trend chart.
-- **Navigation**: `go_router` with URL query params (month filters).
-- **State**: `flutter_riverpod` + `riverpod_annotation`.
-- **Storage**: Firestore with user-scoped collections & security rules.
-- **Local Prefs**: `shared_preferences` (e.g., collapsible sections).
-- **Dev Flow**: Firebase emulators, flavors (dev/prod), build_runner codegen.
+This project was built as a **portfolio-grade application**, emphasizing clean architecture, scalability, and real-world usability.
 
----
+## Features
 
-## 🧱 Tech Stack
+### Core
 
-- Flutter 3.x
-- Riverpod / riverpod_annotation / freezed / json_serializable
-- GoRouter
-- Firebase (Auth, Firestore, Storage) + Emulators
-- Shared Preferences
-- fl_chart
+- Dashboard with monthly income, expenses, and net balance
+- Transaction list with filtering by date range
+- Add, edit, delete transactions
+- Undo delete support
 
----
+### CSV Import
 
-## 📦 Project Structure (high-level)
+- Import transactions from CSV files
+- Flexible column mapping (date, amount, debit, credit, merchant, category)
+- Auto-detect transaction direction (income vs expense)
+- Rule-based auto categorization during import
+- Preview before import
+- Supports both `amount` and `debit / credit` CSV formats
 
-lib/
-app/
-app_router.dart
-auth_sync.dart
-features/
-auth/
-providers.dart
-presentation/...
-categories/
-data/
-category_model.dart
-category_repository.dart
-rule_model.dart
-categories_providers.dart
-presentation/
-categories_screen.dart
-rules_screen.dart
-dashboard/
-providers.dart
-presentation/
-dashboard_screen.dart
-widgets/
-monthly_trend_chart.dart
-expandable_card.dart
-transactions/
-data/
-transaction_model.dart
-transactions_repository.dart
-categories.dart
-logic/
-rule_engine.dart
-presentation/
-transactions_screen.dart
-add_transaction_screen.dart
-import_csv_screen.dart
-add_tx_controller.dart
-services/
-firebase_providers.dart
-widgets/
-error_card.dart
+### Categories & Rules
 
----
+- Custom categories (Income / Expense)
+- Rule engine (match by merchant or description)
+- Rules applied to both manual entry and CSV import
 
-## 🚀 Getting Started
+### Insights
 
-### Prerequisites
+- Monthly insights (top category, top merchant, comparisons)
+- Optional AI-generated financial summary
+- AI calls proxied via secure backend (no API key in app)
 
-- Flutter SDK installed (`flutter doctor` should be green)
-- CocoaPods (macOS/iOS): `brew install cocoapods`
-- Ruby (>= 3.x recommended)
-- Firebase CLI: `curl -sL https://firebase.tools | bash`
-- FlutterFire CLI: `dart pub global activate flutterfire_cli`
+### UX & Quality
 
-###
+- Light & Dark themes
+- Shimmer loading placeholders
+- Responsive layout (mobile & tablet)
+- Real-time updates via Firestore
 
-1. Install dependencies
+## Screenshots
+
+| Dashboard                               | CSV Import                            | Insights                              |
+| --------------------------------------- | ------------------------------------- | ------------------------------------- |
+| ![Dashboard](screenshots/dashboard.png) | ![CSV Import](screenshots/import.png) | ![Insights](screenshots/insights.png) |
+
+| Transactions                                  | Categories                                | Rules                           |
+| --------------------------------------------- | ----------------------------------------- | ------------------------------- |
+| ![Transactions](screenshots/transactions.png) | ![Categories](screenshots/categories.png) | ![Rules](screenshots/rules.png) |
+
+## Why This Project?
+
+Most finance apps lock users into rigid data formats and opaque categorization.
+
+This project was built to explore and solve real-world problems such as:
+
+### CSV-First Thinking
+
+Banks export data in different CSV formats.
+Instead of forcing one structure, this app allows:
+
+- Column mapping
+- Debit / credit or amount-based imports
+- Safe previews before committing data
+
+### Deterministic Rules Over Magic
+
+Instead of hidden AI logic:
+
+- Users define explicit categorization rules
+- Rules apply consistently to manual entry and imports
+- Results are predictable and debuggable
+
+### AI as an Optional Enhancement
+
+AI is used **only as a layer on top**:
+
+- Local insights work without AI
+- AI summaries are optional
+- API keys are never embedded in the app
+- Calls go through a secure proxy backend
+
+### Built Like a Real Product
+
+The architecture emphasizes:
+
+- Separation of concerns
+- Riverpod state management
+- Reactive streams
+- Scalable data models
+- Real production trade-offs
+
+## Tech Stack
+
+### Frontend
+
+- Flutter
+- Riverpod
+- Material 3
+- Shimmer
+
+### Backend
+
+- Firebase Auth
+- Cloud Firestore
+
+### AI (Optional)
+
+- OpenAI API (via secure Vercel proxy)
+
+### Architecture
+
+- Feature-based folder structure
+- Repository pattern
+- Immutable data models
+- Stream-driven state
+
+## Running Locally
 
 ```bash
 flutter pub get
-dart run build_runner build -d
+flutter run -t lib/main_dev.dart
 
-2) Firebase setup
+flutter run -t lib/main_dev.dart \
+  --dart-define=AI_PROXY_URL=https://mini-finance-tracker.vercel.app/api/ai-insights
 
-Create Firebase projects for dev and prod (or use existing):
-
-# Dev flavor
-flutterfire configure \
-  --project=your-dev-project-id \
-  --out=lib/firebase_options_dev.dart \
-  --platforms=ios,android,web
-
-# Prod flavor (optional now)
-flutterfire configure \
-  --project=your-prod-project-id \
-  --out=lib/firebase_options_prod.dart \
-  --platforms=ios,android,web
-
-  Ensure the iOS Podfile uses platform :ios, '15.0'. If CocoaPods is stale:
-  cd ios && pod repo update && pod install && cd -
-
-3) Emulators (local dev)
-
-  firebase init emulators
-  # choose Auth, Firestore, Storage + UI
-  firebase emulators:start
-
-  Run the app (dev, with emulators):
-
-  # iOS Simulator example
-  flutter run -t lib/main_dev.dart --dart-define=USE_EMULATORS=true -d "iPhone SE (3rd generation)"
 ```
+
+## Security
+
+- No API keys are embedded in the mobile app
+- AI requests are routed through a secure backend proxy
+- Firebase Auth is required for all user data
+
+## Future Improvements
+
+- Bank import presets
+- Budget limits & alerts
+- Charts for category trends
+- Export to CSV
+- Multi-account support
+
+## Final Notes
+
+This project was built as a real-world portfolio application, not a tutorial clone.
+Design decisions intentionally favor clarity, extensibility, and long-term maintainability.

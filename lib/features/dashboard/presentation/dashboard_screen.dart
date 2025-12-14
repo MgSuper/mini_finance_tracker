@@ -42,18 +42,6 @@ class DashboardScreen extends ConsumerWidget {
         elevation: 0,
         title: const Text('Dashboard'),
         actions: [
-          IconButton(
-            tooltip: 'Toggle theme',
-            icon: const Icon(Icons.brightness_6),
-            onPressed: () => ref.read(themeModeProvider.notifier).toggle(),
-          ),
-          IconButton(
-            tooltip: 'Logout',
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await auth.signOut();
-            },
-          ),
           PopupMenuButton<String>(
             onSelected: (v) => switch (v) {
               'import' => context.push('/import'),

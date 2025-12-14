@@ -1,9 +1,12 @@
 import 'dart:io' show File;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mini_finan/features/transactions/data/csv_import.dart';
 import 'package:mini_finan/features/transactions/import_controller.dart';
+import 'package:mini_finan/features/transactions/logic/csv_template.dart';
+import 'package:mini_finan/features/transactions/logic/file_actions.dart';
 
 class ImportCsvScreen extends ConsumerStatefulWidget {
   const ImportCsvScreen({super.key});
@@ -63,6 +66,16 @@ class _ImportCsvScreenState extends ConsumerState<ImportCsvScreen> {
   Future<void> _import() async {
     final controller = ref.read(importControllerProvider.notifier);
     try {
+      if (mapping['category'] == -1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '⚠️ No Category column mapped. Transactions will be auto-categorized.',
+            ),
+          ),
+        );
+        return;
+      }
       final count = await controller.commit(
         rows: parsed?.rows ?? const [],
         mapping: mapping,
@@ -92,6 +105,51 @@ class _ImportCsvScreenState extends ConsumerState<ImportCsvScreen> {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.download),
+                    label: const Text('Template'),
+                    onPressed: () async {
+                      final bytes = csvTemplateBytes();
+                      final name = CsvFileActions.buildTemplateName();
+                      await CsvFileActions.saveToDevice(
+                          bytes: bytes, fileName: name);
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('✅ Template saved')),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.share),
+                    label: const Text('Share'),
+                    onPressed: () async {
+                      final bytes = csvTemplateBytes();
+                      final name = CsvFileActions.buildTemplateName();
+                      await CsvFileActions.share(bytes: bytes, fileName: name);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            // TextButton.icon(
+            //   icon: const Icon(Icons.download),
+            //   label: const Text('Download CSV template'),
+            //   onPressed: () async {
+            //     final data = await rootBundle
+            //         .loadString('assets/csv/mini_finance_template.csv');
+
+            //     // You can:
+            //     // - share it
+            //     // - save to Downloads
+            //     // - or open preview
+            //   },
+            // ),
             FilledButton.icon(
               onPressed: state.isLoading ? null : _pickCsv,
               icon: const Icon(Icons.upload_file),

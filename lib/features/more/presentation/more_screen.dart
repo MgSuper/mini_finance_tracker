@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mini_finan/app/providers/theme_mode_provider.dart';
+import 'package:mini_finan/features/auth/providers.dart';
 
-class MoreScreen extends StatelessWidget {
+class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final toggle = ref.watch(themeModeProvider);
     return Scaffold(
       appBar:
           AppBar(centerTitle: false, elevation: 0, title: const Text('More')),
@@ -30,12 +34,40 @@ class MoreScreen extends StatelessWidget {
             subtitle: const Text('Auto-tagging conditions'),
             onTap: () => context.push('/rules'),
           ),
-          const Divider(height: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(
+              height: 32,
+              color: Colors.grey.shade400,
+            ),
+          ),
           const _SectionLabel('Explore'),
           ListTile(
             leading: const Icon(Icons.receipt_long),
             title: const Text('Transactions'),
             onTap: () => context.push('/transactions'),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(
+              height: 32,
+              color: Colors.grey.shade400,
+            ),
+          ),
+          const _SectionLabel('Settings'),
+          ListTile(
+            leading: toggle == ThemeMode.dark
+                ? const Icon(Icons.dark_mode_outlined)
+                : const Icon(Icons.light_mode_outlined),
+            title: const Text('Theme Mode'),
+            onTap: () => ref.read(themeModeProvider.notifier).toggle(),
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () async {
+              await ref.read(authControllerProvider).signOut();
+            },
           ),
         ],
       ),
