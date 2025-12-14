@@ -127,6 +127,21 @@ The architecture emphasizes:
 - Immutable data models
 - Stream-driven state
 
+## Continuous Integration (CI)
+
+- This project includes a GitHub Actions CI pipeline.
+
+  - CI Pipeline Runs On:
+  - Every push to main
+
+- Every pull request
+  - CI Checks:
+  - Flutter setup (stable)
+  - Dependency installation
+  - flutter analyze
+  - flutter test
+  - Android APK build (debug)
+
 ## Running Locally
 
 ```bash
