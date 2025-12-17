@@ -17,8 +17,6 @@ final routerProvider = Provider<GoRouter>((ref) {
   String? redirectLogic(BuildContext context, GoRouterState state) {
     final user = FirebaseAuth.instance.currentUser;
     final loggingIn = state.matchedLocation == '/sign-in';
-    print('user: $user, loggingIn: $loggingIn');
-
     if (user == null) {
       // not signed in → only allow /sign-in
       return loggingIn ? null : '/sign-in';
