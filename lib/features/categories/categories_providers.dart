@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mini_finan/features/auth/providers.dart';
+import 'package:mini_finan/features/auth/providers/auth_providers.dart';
 import 'package:mini_finan/features/categories/data/category_model.dart';
 import 'package:mini_finan/features/categories/data/category_repository.dart';
 import 'package:mini_finan/features/categories/data/rule_model.dart';
 import 'package:mini_finan/features/categories/data/rule_repository.dart';
-import 'package:mini_finan/services/firebase_providers.dart';
+import 'package:mini_finan/features/auth/providers/firebase_providers.dart';
 
 // All categories as a stream. If signed-out -> empty stream (no crash, no permission error).
 final categoriesProvider =

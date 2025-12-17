@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mini_finan/features/auth/providers.dart';
+import 'package:mini_finan/features/auth/providers/auth_providers.dart';
 import 'package:mini_finan/features/categories/data/category_model.dart';
 
 final categoriesRepositoryProvider = Provider<CategoriesRepository>((ref) {

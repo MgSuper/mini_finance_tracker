@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mini_finan/features/auth/providers.dart';
+import 'package:mini_finan/features/auth/presentation/widgets/accounts_bottom_sheet.dart';
+import 'package:mini_finan/features/auth/providers/auth_providers.dart';
+import 'package:mini_finan/features/auth/providers/auth_ui_providers.dart';
 import 'package:mini_finan/features/dashboard/providers.dart';
 import 'package:mini_finan/features/dashboard/providers/trend_expand_persistence_provider.dart';
 import 'package:mini_finan/features/dashboard/widgets/expansion_card.dart';
@@ -19,6 +21,7 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final totals = ref.watch(totalsProvider);
+    final label = ref.watch(authLabelProvider);
 
     final uid = ref.watch(authUidNullableProvider);
     if (uid == null) {
@@ -36,7 +39,18 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         centerTitle: false,
         elevation: 0,
-        title: const Text('Dashboard'),
+        title: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => showAccountsBottomSheet(context),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label),
+              const SizedBox(width: 6),
+              const Icon(Icons.keyboard_arrow_down),
+            ],
+          ),
+        ),
         actions: [
           PopupMenuButton<String>(
             onSelected: (v) => switch (v) {

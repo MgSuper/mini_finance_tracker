@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mini_finan/features/auth/providers.dart';
+import 'package:mini_finan/features/auth/providers/auth_providers.dart';
 import 'package:mini_finan/features/categories/categories_providers.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';
 import 'package:mini_finan/features/transactions/data/transactions_repository.dart';

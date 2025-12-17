@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mini_finan/features/auth/providers.dart';
+import 'package:mini_finan/features/auth/providers/auth_providers.dart';
 import 'package:mini_finan/features/categories/categories_providers.dart';
 import 'package:mini_finan/features/categories/data/rule_model.dart';
 import 'package:uuid/uuid.dart';

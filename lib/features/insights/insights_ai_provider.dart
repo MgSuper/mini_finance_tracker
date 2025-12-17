@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:mini_finan/features/insights/insights_metrics.dart';
 import 'package:mini_finan/features/insights/settings_providers.dart';
-import 'package:mini_finan/services/firebase_providers.dart';
+import 'package:mini_finan/features/auth/providers/firebase_providers.dart';
 
 final insightsAiProvider = FutureProvider<String?>((ref) async {
   // Check if AI mode is enabled

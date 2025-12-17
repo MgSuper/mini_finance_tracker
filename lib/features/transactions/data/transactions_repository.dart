@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';
-import 'package:mini_finan/services/firebase_providers.dart';
+import 'package:mini_finan/features/auth/providers/firebase_providers.dart';
 
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final db = ref.watch(firestoreProvider);

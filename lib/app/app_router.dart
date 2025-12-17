@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mini_finan/app/router_refresh.dart';
-import 'package:mini_finan/features/auth/presentation/sign_in_screen.dart';
-import 'package:mini_finan/features/auth/providers.dart';
+import 'package:mini_finan/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:mini_finan/features/auth/providers/auth_providers.dart';
 import 'package:mini_finan/features/categories/presentation/categories_screen.dart';
 import 'package:mini_finan/features/categories/presentation/rules_screen.dart';
 import 'package:mini_finan/features/dashboard/presentation/dashboard_screen.dart';
@@ -17,6 +17,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   String? redirectLogic(BuildContext context, GoRouterState state) {
     final user = FirebaseAuth.instance.currentUser;
     final loggingIn = state.matchedLocation == '/sign-in';
+    print('user: $user, loggingIn: $loggingIn');
 
     if (user == null) {
       // not signed in → only allow /sign-in
@@ -32,7 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/dashboard',
     refreshListenable: GoRouterRefreshStream(
-      ref.watch(authStreamRawProvider),
+      ref.watch(authRefreshStreamProvider),
     ),
     redirect: redirectLogic,
     routes: [

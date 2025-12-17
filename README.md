@@ -22,6 +22,14 @@ This project was built as a **portfolio-grade application**, emphasizing clean a
 - Add, edit, delete transactions
 - Undo delete support
 
+## Authentication & Accounts
+
+- Users can start immediately with Anonymous Sign-In (no friction)
+- Anonymous accounts can be upgraded to Email & Password without losing data
+- Returning users can Sign In with Email & Password
+- Account upgrade happens inline via a bottom sheet (no full navigation)
+- Authentication state is fully reactive using Firebase Auth + Riverpod
+
 ### CSV Import
 
 - Import transactions from CSV files
@@ -52,9 +60,17 @@ This project was built as a **portfolio-grade application**, emphasizing clean a
 
 ## Screenshots
 
-| Dashboard                               | CSV Import                            | Insights                              |
-| --------------------------------------- | ------------------------------------- | ------------------------------------- |
-| ![Dashboard](screenshots/dashboard.png) | ![CSV Import](screenshots/import.png) | ![Insights](screenshots/insights.png) |
+| Login                             | Anonymous Login                                     | Anonymous Dashboard                                    |
+| --------------------------------- | --------------------------------------------------- | ------------------------------------------------------ |
+| ![Login](screenshots/login_1.png) | ![Anonymous Login](screenshots/anonymous_login.png) | ![Anonymous Data](screenshots/anonymous_dashboard.png) |
+
+| Anonymous Dashboard With Data                                              | User Migration                                    | Migration Success                                       |
+| -------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------- |
+| ![Anonymous Dashboard With Data](screenshots/anonymous_dashboard_data.png) | ![User Migration](screenshots/user_migration.png) | ![Migration Success](screenshots/migration_success.png) |
+
+| CSV Import                            | Insights                              |
+| ------------------------------------- | ------------------------------------- |
+| ![CSV Import](screenshots/import.png) | ![Insights](screenshots/insights.png) |
 
 | Transactions                                  | Categories                                | Rules                           |
 | --------------------------------------------- | ----------------------------------------- | ------------------------------- |
