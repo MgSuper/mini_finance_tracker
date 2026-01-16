@@ -82,128 +82,132 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Mini Finance Tracker',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Continue anonymously or sign in to your account.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 18),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Mini Finance Tracker',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Continue anonymously or sign in to your account.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 18),
 
-              // -------- Email Sign In --------
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: _emailCtrl,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(),
-                            isDense: true,
+                // -------- Email Sign In --------
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            validator: (v) {
+                              final t = v?.trim() ?? '';
+                              if (t.isEmpty) return 'Enter email';
+                              if (!t.contains('@')) return 'Invalid email';
+                              return null;
+                            },
                           ),
-                          validator: (v) {
-                            final t = v?.trim() ?? '';
-                            if (t.isEmpty) return 'Enter email';
-                            if (!t.contains('@')) return 'Invalid email';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: _passCtrl,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(),
-                            isDense: true,
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            controller: _passCtrl,
+                            obscureText: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            validator: (v) {
+                              final t = v ?? '';
+                              if (t.isEmpty) return 'Enter password';
+                              if (t.length < 6) return 'Min 6 characters';
+                              return null;
+                            },
                           ),
-                          validator: (v) {
-                            final t = v ?? '';
-                            if (t.isEmpty) return 'Enter password';
-                            if (t.length < 6) return 'Min 6 characters';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            icon: _isLoading
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.lock_open),
-                            label:
-                                Text(_isLoading ? 'Signing in...' : 'Sign In'),
-                            onPressed: _isLoading
-                                ? null
-                                : () => _runWithLoading(() async {
-                                      if (!(_formKey.currentState?.validate() ??
-                                          false)) {
-                                        return;
-                                      }
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              icon: _isLoading
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.lock_open),
+                              label: Text(
+                                  _isLoading ? 'Signing in...' : 'Sign In'),
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => _runWithLoading(() async {
+                                        if (!(_formKey.currentState
+                                                ?.validate() ??
+                                            false)) {
+                                          return;
+                                        }
 
-                                      await auth.signInWithEmailAndPassword(
-                                        email: _emailCtrl.text.trim(),
-                                        password: _passCtrl.text,
-                                      );
+                                        await auth.signInWithEmailAndPassword(
+                                          email: _emailCtrl.text.trim(),
+                                          password: _passCtrl.text,
+                                        );
 
-                                      // Seed defaults only if empty
-                                      await seedDefaults(ref);
-                                    }),
+                                        // Seed defaults only if empty
+                                        await seedDefaults(ref);
+                                      }),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 14),
+                const SizedBox(height: 14),
 
-              // -------- Anonymous Sign In --------
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.person_outline),
-                  label: Text(
-                      _isLoading ? 'Please wait...' : 'Continue (Anonymous)'),
-                  onPressed: _isLoading
-                      ? null
-                      : () => _runWithLoading(() async {
-                            await auth.signInAnonymously();
-                            await seedDefaults(ref);
-                          }),
+                // -------- Anonymous Sign In --------
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.person_outline),
+                    label: Text(
+                        _isLoading ? 'Please wait...' : 'Continue (Anonymous)'),
+                    onPressed: _isLoading
+                        ? null
+                        : () => _runWithLoading(() async {
+                              await auth.signInAnonymously();
+                              await seedDefaults(ref);
+                            }),
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 10),
-              Text(
-                'Tip: You can upgrade from Anonymous to Email later from the Accounts sheet.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  'Tip: You can upgrade from Anonymous to Email later from the Accounts sheet.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),

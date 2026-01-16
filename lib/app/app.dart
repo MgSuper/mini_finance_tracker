@@ -4,6 +4,7 @@ import 'package:mini_finan/app/app_router.dart';
 import 'package:mini_finan/app/auth_sync.dart';
 import 'package:mini_finan/app/app_theme.dart';
 import 'package:mini_finan/app/providers/theme_mode_provider.dart';
+import 'package:mini_finan/app/web_mobile_frame.dart';
 
 class FinanceAIApp extends ConsumerWidget {
   const FinanceAIApp({super.key});
@@ -13,18 +14,14 @@ class FinanceAIApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final mode = ref.watch(themeModeProvider);
     return AuthSync(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: 'FinanceAI',
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: mode,
-            routerConfig: router,
-          ),
+      child: WebMobileFrame(
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'FinanceAI',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: mode,
+          routerConfig: router,
         ),
       ),
     );
