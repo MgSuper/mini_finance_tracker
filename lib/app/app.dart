@@ -13,13 +13,19 @@ class FinanceAIApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final mode = ref.watch(themeModeProvider);
     return AuthSync(
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'FinanceAI',
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: mode,
-        routerConfig: router,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: 'FinanceAI',
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: mode,
+            routerConfig: router,
+          ),
+        ),
       ),
     );
   }
