@@ -98,7 +98,6 @@ class DashboardScreen extends ConsumerWidget {
                 final expandedState = ref.watch(monthlyTrendExpandedProvider);
                 final notifier =
                     ref.read(monthlyTrendExpandedProvider.notifier);
-
                 return expandedState.maybeWhen(
                   data: (expanded) => ExpansionCard(
                     title: 'Monthly Net Trend',
