@@ -1,48 +1,85 @@
-name: Flutter CI
+name: CI + Deploy Flutter Web (GitHub Pages)
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]
   pull_request:
-    branches: [main]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  flutter:
-    name: Flutter Analyze & Build
+  ci:
+    name: Flutter CI (analyze/test)
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      # Verify Flutter
-      - name: Flutter version
-        run: flutter --version
-
-      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      # Static analysis
       - name: Analyze project
         run: flutter analyze
 
-      # Run tests (won't fail if no tests yet)
       - name: Run tests
         run: flutter test
         continue-on-error: true
 
-      # Build Android APK (debug)
-      - name: Build debug APK
-        run: flutter build apk --debug -t lib/main_dev.dart
+  build_web:
+    name: Build Flutter Web
+    needs: ci
+    runs-on: ubuntu-latest
+    # Only build web for main branch pushes (not PRs)
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web (GitHub Pages base href)
+        run: |
+          flutter build web --release \
+            --base-href "/mini_finance_tracker/" \
+            -t lib/main_dev.dart \
+            --dart-define=APP_ENV=dev \
+            --dart-define=AI_PROXY_URL="https://mini-finance-tracker.vercel.app/api/ai-insights"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build_web
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Deploy
+        uses: actions/deploy-pages@v4
