@@ -163,7 +163,10 @@ class _AccountsSheetState extends ConsumerState<_AccountsSheet> {
                         style: TextStyle(color: Colors.red),
                       ),
                       onTap: () async {
-                        await ref.read(authControllerProvider).signOut();
+                        Navigator.of(context).maybePop();
+                        await ref
+                            .read(authControllerProvider.notifier)
+                            .signOut();
                       },
                     ),
                   ),
@@ -268,24 +271,28 @@ class _AccountsSheetState extends ConsumerState<_AccountsSheet> {
             const SizedBox(height: 14),
             Row(
               children: [
-                TextButton(
-                  onPressed: () {
-                    _emailCtrl.clear();
-                    _passCtrl.clear();
-                    ctrl.reset();
-                  },
-                  child: const Text('Cancel'),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      _emailCtrl.clear();
+                      _passCtrl.clear();
+                      ctrl.reset();
+                    },
+                    child: const Text('Cancel'),
+                  ),
                 ),
-                const Spacer(),
-                FilledButton(
-                  onPressed: () async {
-                    if (!(_formKey.currentState?.validate() ?? false)) return;
-                    await ctrl.signUpAndLink(
-                      email: _emailCtrl.text,
-                      password: _passCtrl.text,
-                    );
-                  },
-                  child: const Text('Sign Up'),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () async {
+                      if (!(_formKey.currentState?.validate() ?? false)) return;
+                      await ctrl.signUpAndLink(
+                        email: _emailCtrl.text,
+                        password: _passCtrl.text,
+                      );
+                    },
+                    child: const Text('Sign Up'),
+                  ),
                 ),
               ],
             ),
@@ -298,7 +305,8 @@ class _AccountsSheetState extends ConsumerState<_AccountsSheet> {
     return Container(
       key: const ValueKey('signup_button'),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Center(
+      child: SizedBox(
+        width: double.infinity, // ✅ forces finite width from sheet padding
         child: FilledButton(
           onPressed: () => ctrl.startEditing(),
           child: const Text('Sign Up'),

@@ -63,29 +63,39 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _FilterBar(range: range, onPickCustom: _pickCustomRange),
-          const Divider(height: 1),
-          Expanded(
-            child: txs.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
-              data: (list) {
-                if (list.isEmpty) {
-                  return const Center(
-                      child: Text('No transactions in selected range'));
-                }
-                return ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 96),
-                  itemCount: list.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (_, i) => _TxTile(t: list[i]),
-                );
-              },
-            ),
+      body: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Column(
+            children: [
+              _FilterBar(range: range, onPickCustom: _pickCustomRange),
+              // const Divider(height: 1),
+              Expanded(
+                child: txs.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error: $e')),
+                  data: (list) {
+                    if (list.isEmpty) {
+                      return const Center(
+                          child: Text('No transactions in selected range'));
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                      itemCount: list.length,
+                      separatorBuilder: (_, __) => const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Divider(height: 1),
+                      ),
+                      itemBuilder: (_, i) => _TxTile(t: list[i]),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/transactions/add'),
@@ -132,36 +142,30 @@ class _FilterBar extends ConsumerWidget {
     final isThis = _isSameTuple(range, _thisMonth());
     final isLast = _isSameTuple(range, _lastMonth());
 
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            FilterChip(
-              label: const Text('This month'),
-              selected: isThis,
-              onSelected: (_) =>
-                  ref.read(txFilterProvider.notifier).state = _thisMonth(),
-            ),
-            FilterChip(
-              label: const Text('Last month'),
-              selected: isLast,
-              onSelected: (_) =>
-                  ref.read(txFilterProvider.notifier).state = _lastMonth(),
-            ),
-            ActionChip(
-              label: const Text('Custom…'),
-              onPressed: () => onPickCustom(context),
-            ),
-            const SizedBox(width: 8),
-            _RangeBadge(range: range),
-          ],
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        FilterChip(
+          label: const Text('This month'),
+          selected: isThis,
+          onSelected: (_) =>
+              ref.read(txFilterProvider.notifier).state = _thisMonth(),
         ),
-      ),
+        FilterChip(
+          label: const Text('Last month'),
+          selected: isLast,
+          onSelected: (_) =>
+              ref.read(txFilterProvider.notifier).state = _lastMonth(),
+        ),
+        ActionChip(
+          label: const Text('Custom…'),
+          onPressed: () => onPickCustom(context),
+        ),
+        const SizedBox(width: 8),
+        _RangeBadge(range: range),
+      ],
     );
   }
 }

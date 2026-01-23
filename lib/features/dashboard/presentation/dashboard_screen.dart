@@ -9,6 +9,7 @@ import 'package:mini_finan/features/dashboard/providers/trend_expand_persistence
 import 'package:mini_finan/features/dashboard/widgets/expansion_card.dart';
 import 'package:mini_finan/features/dashboard/widgets/expansion_card_shimmer.dart';
 import 'package:mini_finan/features/dashboard/widgets/monthly_trend_chart.dart';
+import 'package:mini_finan/features/dashboard/widgets/quick_actions_row.dart';
 import 'package:mini_finan/features/insights/insights_card.dart';
 import 'package:mini_finan/features/transactions/data/transaction_model.dart';
 import 'package:mini_finan/features/transactions/presentation/transaction_detail_sheet.dart';
@@ -52,27 +53,13 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          // ✅ Keep only "More…" (optional)
           PopupMenuButton<String>(
             onSelected: (v) => switch (v) {
-              'import' => context.push('/import'),
-              'categories' => context.push('/categories'),
-              'rules' => context.push('/rules'),
               'more' => context.push('/more'),
               _ => null,
             },
             itemBuilder: (ctx) => const [
-              PopupMenuItem(
-                value: 'import',
-                child: Text('Import CSV'),
-              ),
-              PopupMenuItem(
-                value: 'categories',
-                child: Text('Manage Categories'),
-              ),
-              PopupMenuItem(
-                value: 'rules',
-                child: Text('Manage Rules'),
-              ),
               PopupMenuItem(
                 value: 'more',
                 child: Text('More…'),
@@ -92,6 +79,27 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             _TotalsCard(totals: totals),
             // Expandable Monthly Trend
+            const SizedBox(height: 16),
+
+            QuickActionsRow(
+              actions: [
+                QuickActionItem(
+                  icon: Icons.upload_file,
+                  label: 'Import\nCSV',
+                  onTap: () => context.push('/import'),
+                ),
+                QuickActionItem(
+                  icon: Icons.category_outlined,
+                  label: 'Manage\nCategories',
+                  onTap: () => context.push('/categories'),
+                ),
+                QuickActionItem(
+                  icon: Icons.rule_folder_outlined,
+                  label: 'Manage\nRules',
+                  onTap: () => context.push('/rules'),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Consumer(
               builder: (context, ref, _) {
@@ -326,7 +334,7 @@ class _TotalsCard extends ConsumerWidget {
                     Row(
                       children: [
                         Text('Net',
-                            style: Theme.of(context).textTheme.labelLarge),
+                            style: Theme.of(context).textTheme.titleLarge),
                         const Spacer(),
                         // Avoid overflow of big numbers
                         FittedBox(
@@ -417,14 +425,15 @@ class _TotalChip extends StatelessWidget {
         ? Theme.of(context).colorScheme.error
         : Theme.of(context).colorScheme.primary;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.only(left: 8, right: 50, top: 8, bottom: 8),
       decoration: BoxDecoration(
-        color: color.withAlpha(20),
+        color: color.withAlpha(50),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: Theme.of(context).textTheme.labelSmall),
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
           Text(_money(value), style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
@@ -447,7 +456,16 @@ class _CategoryBarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _parseHex(colorHex) ?? Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final barColor = _parseHex(colorHex) ?? cs.primary; // category color
+
+    // Darker, neutral track for contrast (important)
+    final trackColor = cs.outline.withAlpha(
+      theme.brightness == Brightness.dark ? 153 : 102,
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -457,7 +475,10 @@ class _CategoryBarRow extends StatelessWidget {
               Container(
                 width: 10,
                 height: 10,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: barColor,
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(child: Text(name)),
@@ -470,6 +491,8 @@ class _CategoryBarRow extends StatelessWidget {
             child: LinearProgressIndicator(
               value: fraction.clamp(0, 1),
               minHeight: 8,
+              backgroundColor: trackColor, // ✅ clearly different
+              valueColor: AlwaysStoppedAnimation(barColor), // ✅ vivid bar
             ),
           ),
         ],

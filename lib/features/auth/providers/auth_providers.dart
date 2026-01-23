@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mini_finan/features/auth/data/firebase_auth_repository_impl.dart';
+import 'package:mini_finan/features/auth/data/seed_user_defaults_service.dart';
 import 'package:mini_finan/features/auth/domain/firebase_auth_repository.dart';
 import 'package:mini_finan/features/auth/providers/firebase_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -49,29 +51,51 @@ bool isSignedIn(Ref ref) {
   return ref.watch(authUidNullableProvider) != null;
 }
 
-/// A small controller wrapper for imperative calls (optional)
 @riverpod
-AuthController authController(Ref ref) {
-  return AuthController(ref);
+SeedUserDefaultsService seedUserDefaultsService(Ref ref) {
+  return SeedUserDefaultsService(FirebaseFirestore.instance);
 }
 
-class AuthController {
-  AuthController(this._ref);
-  final Ref _ref;
-
-  FirebaseAuth get _auth => _ref.read(firebaseAuthProvider);
-
-  Future<UserCredential> signInAnonymously() => _auth.signInAnonymously();
-
-  Future<UserCredential> signInWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) {
-    return _auth.signInWithEmailAndPassword(
-      email: email.trim(),
-      password: password,
-    );
+/// A small controller wrapper for imperative calls (optional)
+@riverpod
+class AuthController extends _$AuthController {
+  @override
+  Future<void> build() async {
+    // nothing to initialize
   }
 
-  Future<void> signOut() => _auth.signOut();
+  Future<void> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      await ref.read(firebaseAuthProvider).signInWithEmailAndPassword(
+            email: email.trim(),
+            password: password,
+          );
+      final uid = ref.read(authUidProvider);
+      await ref
+          .read(seedUserDefaultsServiceProvider)
+          .seedCategoriesIfNeeded(uid);
+    });
+  }
+
+  Future<void> signOut() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(firebaseAuthProvider).signOut();
+    });
+  }
+
+  Future<void> signInAnonymously() async {
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      await ref.read(firebaseAuthProvider).signInAnonymously();
+    });
+    final uid = ref.read(authUidProvider);
+    await ref.read(seedUserDefaultsServiceProvider).seedCategoriesIfNeeded(uid);
+  }
 }

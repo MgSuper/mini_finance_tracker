@@ -17,18 +17,11 @@ class MonthlyTrendChart extends ConsumerWidget {
         height: 220,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => _CardWrap(
-        child: Text('Error: $e'),
-      ),
+      error: (e, _) => Text('Error: $e'),
       data: (points) {
         if (points.isEmpty) {
-          return const _CardWrap(
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Text(
-                  'Not enough data to show a trend yet. Add transactions to see your monthly trajectory.'),
-            ),
-          );
+          return const Text(
+              'Not enough data to show a trend yet. Add transactions to see your monthly trajectory.');
         }
 
         // With 1 point a "line" is boring – still draw, but show helper text.
@@ -57,166 +50,142 @@ class MonthlyTrendChart extends ConsumerWidget {
         final theme = Theme.of(context);
         final primary = theme.colorScheme.primary;
 
-        return _CardWrap(
-          child: SizedBox(
-            height: 220,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Monthly Net Trend', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: LineChart(
-                    LineChartData(
-                      minX: 0,
-                      maxX: (points.length - 1).toDouble(),
-                      minY: minY,
-                      maxY: maxY,
-                      gridData: FlGridData(
-                        show: true,
-                        drawVerticalLine: false,
-                        horizontalInterval: _niceStep((maxY - minY) / 4),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  maxX: (points.length - 1).toDouble(),
+                  minY: minY,
+                  maxY: maxY,
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: _niceStep((maxY - minY) / 4),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  extraLinesData: ExtraLinesData(
+                    horizontalLines: [
+                      HorizontalLine(
+                        y: 0,
+                        color: theme.colorScheme.outlineVariant,
+                        strokeWidth: 1,
+                        dashArray: [4, 4],
                       ),
-                      borderData: FlBorderData(show: false),
-                      extraLinesData: ExtraLinesData(
-                        horizontalLines: [
-                          HorizontalLine(
-                            y: 0,
-                            color: theme.colorScheme.outlineVariant,
-                            strokeWidth: 1,
-                            dashArray: [4, 4],
-                          ),
-                        ],
+                    ],
+                  ),
+                  titlesData: FlTitlesData(
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 56,
+                        getTitlesWidget: (v, _) => Text(_moneyCompact(v),
+                            style: theme.textTheme.bodySmall),
                       ),
-                      titlesData: FlTitlesData(
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 56,
-                            getTitlesWidget: (v, _) => Text(_moneyCompact(v),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        getTitlesWidget: (v, _) {
+                          final idx = v.toInt();
+                          if (idx < 0 || idx >= points.length) {
+                            return const SizedBox.shrink();
+                          }
+                          // Show first, middle, last tick to reduce clutter
+                          final isFirst = idx == 0;
+                          final isLast = idx == points.length - 1;
+                          final isMid = idx == (points.length / 2).floor();
+                          if (!(isFirst || isMid || isLast)) {
+                            return const SizedBox.shrink();
+                          }
+                          final m = points[idx].month;
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text('${m.month}/${m.year % 100}',
                                 style: theme.textTheme.bodySmall),
-                          ),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            interval: 1,
-                            getTitlesWidget: (v, _) {
-                              final idx = v.toInt();
-                              if (idx < 0 || idx >= points.length) {
-                                return const SizedBox.shrink();
-                              }
-                              // Show first, middle, last tick to reduce clutter
-                              final isFirst = idx == 0;
-                              final isLast = idx == points.length - 1;
-                              final isMid = idx == (points.length / 2).floor();
-                              if (!(isFirst || isMid || isLast)) {
-                                return const SizedBox.shrink();
-                              }
-                              final m = points[idx].month;
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text('${m.month}/${m.year % 100}',
-                                    style: theme.textTheme.bodySmall),
-                              );
-                            },
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                      lineTouchData: LineTouchData(
-                        handleBuiltInTouches: true,
-                        touchTooltipData: LineTouchTooltipData(
-                          tooltipRoundedRadius: 8,
-                          getTooltipItems: (touchedSpots) {
-                            return touchedSpots.map((ts) {
-                              final idx = ts.spotIndex;
-                              final month = points[idx].month;
-                              final net = points[idx].net;
-                              return LineTooltipItem(
-                                '${_monthName(month.month)} ${month.year}\n'
-                                '${_moneyFull(net)}',
-                                theme.textTheme.bodyMedium!.copyWith(
-                                  color: theme.colorScheme.onSurface,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              );
-                            }).toList();
-                          },
-                        ),
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: spots,
-                          isCurved: true,
-                          barWidth: 3,
-                          color: primary,
-                          belowBarData: BarAreaData(
-                            show: true,
-                            gradient: LinearGradient(
-                              colors: [
-                                primary.withAlpha(20),
-                                primary.withAlpha(5),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  lineTouchData: LineTouchData(
+                    handleBuiltInTouches: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      tooltipRoundedRadius: 8,
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((ts) {
+                          final idx = ts.spotIndex;
+                          final month = points[idx].month;
+                          final net = points[idx].net;
+                          return LineTooltipItem(
+                            '${_monthName(month.month)} ${month.year}\n'
+                            '${_moneyFull(net)}',
+                            theme.textTheme.bodyMedium!.copyWith(
+                              color: theme.colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                          dotData: FlDotData(
-                            show: true,
-                            getDotPainter: (s, _, __, ___) {
-                              final isNeg = s.y < 0;
-                              final c = isNeg
-                                  ? theme.colorScheme.error
-                                  : Colors.green;
-                              return FlDotCirclePainter(
-                                radius: 3.5,
-                                strokeWidth: 1.5,
-                                strokeColor: theme.colorScheme.surface,
-                                color: c,
-                              );
-                            },
-                          ),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      barWidth: 3,
+                      color: primary,
+                      belowBarData: BarAreaData(
+                        show: true,
+                        gradient: LinearGradient(
+                          colors: [
+                            primary.withAlpha(20),
+                            primary.withAlpha(5),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
                         ),
-                      ],
+                      ),
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (s, _, __, ___) {
+                          final isNeg = s.y < 0;
+                          final c =
+                              isNeg ? theme.colorScheme.error : Colors.green;
+                          return FlDotCirclePainter(
+                            radius: 3.5,
+                            strokeWidth: 1.5,
+                            strokeColor: theme.colorScheme.surface,
+                            color: c,
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                if (onlyOne)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      'You have data for only one month—add more transactions to see a clearer trend.',
-                      style: theme.textTheme.bodySmall!
-                          .copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                  ),
-              ],
+              ),
             ),
-          ),
+            if (onlyOne)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  'You have data for only one month—add more transactions to see a clearer trend.',
+                  style: theme.textTheme.bodySmall!
+                      .copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
+              ),
+          ],
         );
       },
-    );
-  }
-}
-
-/// Simple card wrapper to keep visuals consistent
-class _CardWrap extends StatelessWidget {
-  const _CardWrap({required this.child});
-  final Widget child;
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(top: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: child,
-      ),
     );
   }
 }

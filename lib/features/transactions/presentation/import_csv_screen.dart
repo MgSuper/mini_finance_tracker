@@ -150,6 +150,7 @@ class _ImportCsvScreenState extends ConsumerState<ImportCsvScreen> {
             //     // - or open preview
             //   },
             // ),
+            const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: state.isLoading ? null : _pickCsv,
               icon: const Icon(Icons.upload_file),

@@ -1,31 +1,52 @@
 import 'package:flutter/material.dart';
 
-/// Brand seed color (refined teal/green).
-const _seed = Color(0xFF14B8A6);
-
+/// Luxury dark + gold accent theme (inspired by the screenshot)
 class AppTheme {
-  static const _radiusCard = 16.0;
-  static const _radiusField = 12.0;
+  static const _radiusCard = 18.0;
+  static const _radiusField = 14.0;
+  static const _radiusButton = 14.0;
 
   static const _fieldPadding =
-      EdgeInsets.symmetric(horizontal: 12, vertical: 12);
+      EdgeInsets.symmetric(horizontal: 14, vertical: 14);
   static const _tilePadding = EdgeInsets.symmetric(horizontal: 12, vertical: 2);
-  static const _cardMargin =
-      EdgeInsets.zero; // IMPORTANT: keep same in both themes
+
+  // IMPORTANT: keep same in both themes (prevents layout "jump")
+  static const _cardMargin = EdgeInsets.zero;
+
+  // Brand accents (gold)
+  static const _gold = Color(0xFFD6B25E); // warm gold
+  static const _goldSoft = Color(0xFFBFA45A);
+
+  // Dark surfaces (matte)
+  static const _darkBg = Color(0xFF0B0D10);
+  static const _darkSurface = Color(0xFF12151A);
+  static const _darkSurface2 = Color(0xFF151A20);
+  static const _darkOutline = Color(0xFF232A34);
+
+  // Light surfaces (still slightly warm, not pure white)
+  static const _lightBg = Color(0xFFF6F6F3);
+  static const _lightSurface = Color(0xFFFFFFFF);
+  static const _lightSurface2 = Color(0xFFF9FAFB);
+  static const _lightOutline = Color(0xFFE7E7E2);
 
   static ThemeData _base({
     required Brightness brightness,
-    required ColorScheme colorScheme,
+    required ColorScheme scheme,
     required Color scaffoldBg,
-    required Color cardColor,
-    required Color inputFill,
+    required Color surface,
+    required Color surface2,
+    required Color outline,
   }) {
     final isDark = brightness == Brightness.dark;
+
+    // Small helpers
+    final onSurfaceMuted = scheme.onSurface.withAlpha(isDark ? 179 : 195);
+    final onSurfaceFaint = scheme.onSurface.withAlpha(isDark ? 115 : 135);
 
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      colorScheme: colorScheme,
+      colorScheme: scheme,
       scaffoldBackgroundColor: scaffoldBg,
 
       // Keep AppBar behavior identical -> no "jump"
@@ -34,112 +55,159 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        backgroundColor:
-            colorScheme.surface, // keep solid in both to avoid visual shift
-        foregroundColor: colorScheme.onSurface,
+        backgroundColor: Colors.transparent,
+        foregroundColor: scheme.onSurface,
         titleTextStyle: TextStyle(
-          color: colorScheme.onSurface,
+          color: scheme.onSurface,
           fontSize: 20,
           fontWeight: FontWeight.w700,
+          letterSpacing: 0.2,
         ),
+        iconTheme: IconThemeData(color: scheme.onSurface.withAlpha(225)),
+      ),
+
+      dividerTheme: DividerThemeData(
+        color: outline.withAlpha(isDark ? 230 : 255),
+        thickness: 1,
       ),
 
       cardTheme: CardThemeData(
-        color: cardColor,
-        elevation: 2,
-        margin: _cardMargin, // IMPORTANT: same margin in both
+        color: surface,
+        elevation: isDark ? 0 : 1,
+        margin: _cardMargin,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_radiusCard),
+          side: BorderSide(
+            color: outline.withAlpha(isDark ? 230 : 255),
+            width: 1,
+          ),
         ),
       ),
 
-      listTileTheme: const ListTileThemeData(
-        contentPadding: _tilePadding, // IMPORTANT: same in both
+      listTileTheme: const ListTileThemeData(contentPadding: _tilePadding),
+
+      textTheme: TextTheme(
+        headlineSmall: TextStyle(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.2,
+        ),
+        titleMedium: TextStyle(
+          color: scheme.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+        bodyMedium: TextStyle(color: onSurfaceMuted),
+        bodySmall: TextStyle(color: onSurfaceFaint),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: inputFill,
-        contentPadding: _fieldPadding, // IMPORTANT: same in both
+        fillColor: surface2,
+        contentPadding: _fieldPadding,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: BorderSide(
-            color: isDark ? const Color(0xFF2B3440) : const Color(0xFFE5E7EB),
-          ),
+          borderSide: BorderSide(color: outline, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: BorderSide(
-            color: isDark ? const Color(0xFF2B3440) : const Color(0xFFE5E7EB),
-          ),
+          borderSide: BorderSide(color: outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
         ),
-        labelStyle: TextStyle(
-          color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_radiusField),
+          borderSide: BorderSide(color: scheme.error, width: 1.5),
         ),
-        hintStyle: TextStyle(
-          color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_radiusField),
+          borderSide: BorderSide(color: scheme.error, width: 2),
         ),
+        labelStyle: TextStyle(color: onSurfaceFaint),
+        hintStyle: TextStyle(color: onSurfaceFaint),
+        prefixIconColor: onSurfaceFaint,
+        suffixIconColor: onSurfaceFaint,
       ),
 
-      iconTheme: IconThemeData(color: colorScheme.onSurface.withAlpha(20)),
+      iconTheme: IconThemeData(color: scheme.onSurface.withAlpha(209)),
 
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_radiusButton),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          minimumSize: const Size.fromHeight(52),
+          side: BorderSide(color: outline, width: 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_radiusButton),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
 
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor:
-            isDark ? const Color(0xFF1E242B) : const Color(0xFF111827),
-        contentTextStyle:
-            TextStyle(color: isDark ? Colors.white : Colors.white),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            isDark ? const Color(0xFF151A20) : const Color(0xFF111827),
+        contentTextStyle: const TextStyle(color: Colors.white),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
-      floatingActionButtonTheme:
-          const FloatingActionButtonThemeData(elevation: 2),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        elevation: 2,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
     );
   }
 
-  // LIGHT (aligned)
+  // LIGHT: warm, clean, gold accent
   static final ThemeData light = _base(
     brightness: Brightness.light,
-    colorScheme: const ColorScheme.light(
-      primary: Color(0xFF00796B),
-      onPrimary: Colors.white,
-      secondary: Color(0xFFFFC107),
+    scheme: const ColorScheme.light(
+      primary: _goldSoft,
+      onPrimary: Colors.black,
+      secondary: _gold,
       onSecondary: Colors.black,
-      surface: Color(0xFFFFFFFF), // make AppBar/Card consistent surface base
-      onSurface: Color(0xFF1F2937),
+      surface: _lightSurface,
+      onSurface: Color(0xFF151515),
       error: Color(0xFFD32F2F),
       onError: Colors.white,
     ),
-    scaffoldBg: const Color(0xFFF9FAFB),
-    cardColor: const Color(0xFFFFFFFF),
-    inputFill: const Color(0xFFFFFFFF),
+    scaffoldBg: _lightBg,
+    surface: _lightSurface,
+    surface2: _lightSurface2,
+    outline: _lightOutline,
   );
 
-  // DARK (aligned)
+  // DARK: matte black, gold highlight
   static final ThemeData dark = _base(
     brightness: Brightness.dark,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: _seed,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: const Color(0xFF161A1F),
+    scheme: const ColorScheme.dark(
+      primary: _gold,
+      onPrimary: Color(0xFF0B0D10),
+      secondary: _goldSoft,
+      onSecondary: Color(0xFF0B0D10),
+      surface: _darkSurface,
+      onSurface: Color(0xFFEDEDED),
+      error: Color(0xFFEF4444),
+      onError: Colors.black,
     ),
-    scaffoldBg: const Color(0xFF0F1114),
-    cardColor: const Color(0xFF161A1F),
-    inputFill: const Color(0xFF151A1E),
+    scaffoldBg: _darkBg,
+    surface: _darkSurface,
+    surface2: _darkSurface2,
+    outline: _darkOutline,
   );
 }

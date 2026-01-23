@@ -35,7 +35,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     ),
     redirect: redirectLogic,
     routes: [
-      GoRoute(path: '/sign-in', builder: (_, __) => const SignInScreen()),
+      GoRoute(path: '/sign-in', builder: (_, __) => SignInScreen()),
       GoRoute(
         path: '/transactions',
         builder: (ctx, st) {

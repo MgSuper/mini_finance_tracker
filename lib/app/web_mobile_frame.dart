@@ -17,7 +17,7 @@ class WebMobileFrame extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 420),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16), // optional
-              child: child,
+              child: ScaffoldMessenger(child: child),
             ),
           ),
         ),
